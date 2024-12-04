@@ -29,7 +29,7 @@ export class LoginComponent  {
     if(this.loginForm.valid){
       this.authService.login(this.loginForm.value)
       .subscribe({
-        next: () => this.router.navigate(['/banners']),
+        next: () => this.router.navigate(['/dashboard']),
         error: (err) => console.error(err)
       })
     } else {

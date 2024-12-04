@@ -1,14 +1,8 @@
 <div class="min-h-screen bg-gray-100">
   <nav *ngIf="authService.isAuthenticated()" class="bg-white shadow-md">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-      <h1 class="text-xl font-bold">Patriot Med Dashboard</h1>
+      <h1 class="text-xl font-bold">Assesment Front End Haikal</h1>
       <div class="flex space-x-4">
-        <a 
-          routerLink="/banners" 
-          class="text-blue-600 hover:text-blue-800"
-        >
-          Banners
-        </a>
         <button 
           (click)="logout()" 
           class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"

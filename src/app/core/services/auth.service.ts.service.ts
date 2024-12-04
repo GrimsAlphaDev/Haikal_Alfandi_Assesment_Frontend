@@ -49,6 +49,7 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
+    // return !!Cookies.get('session');
     return !!localStorage.getItem('token');
   }
 }
