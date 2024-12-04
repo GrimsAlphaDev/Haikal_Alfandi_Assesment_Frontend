@@ -1,0 +1,9 @@
+<div class="min-h-screen flex items-center justify-center">
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="bg-white p-8 rounded shadow-md" >
+        <input formControlName="username" placeholder="Username" class="w-full p-2 border rounded" required>
+        <input formControlName="password" type="password" placeholder="Password" class="w-full p-2 border rounded mt-4" required>
+        <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded mt-4">
+            Login
+        </button>
+    </form>
+</div>
