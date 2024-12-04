@@ -36,7 +36,7 @@ export class BannerService {
   }
 
   // DELETE Banner
-  deleteBanner(id: number): Observable<void> {
+  deleteBanner(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/Delete/${id}`);
   }
 
