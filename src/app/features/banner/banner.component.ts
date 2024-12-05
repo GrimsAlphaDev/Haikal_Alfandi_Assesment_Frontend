@@ -185,17 +185,6 @@ export class BannerComponent {
   }
 
   createBanner(bannerData: any) {
-    // this.bannerService.createBanner(bannerData).subscribe({
-    //   next: () => {
-    //     this.loadBanners();
-    //     this.closeModal('crud-modal');
-    //     this.resetForm();
-    //     alert('Banner created successfully');
-    //   },
-    //   error: (err) => {
-    //     console.error('Error creating banner', err);
-    //   },
-    // });
     this.store.dispatch(addBanner({ banner: bannerData }));
     this.closeModal('crud-modal');
     this.resetForm();
