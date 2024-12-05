@@ -3,6 +3,9 @@ import { Component } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { initFlowbite } from 'flowbite';
 import { AuthService } from './core/services/auth.service.ts.service';
+import { StoreModule } from '@ngrx/store';
+import { bannerReducer } from './state/banners/banners.reducer';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 @Component({
   selector: 'app-root',

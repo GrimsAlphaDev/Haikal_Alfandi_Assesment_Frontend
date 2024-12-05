@@ -11,6 +11,19 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { initFlowbite } from 'flowbite';
 import { ExportService } from '../../core/services/export.service';
+import { Store } from '@ngrx/store';
+import {
+  addBanner,
+  deleteBanner,
+  loadBanners,
+  sortBanners,
+} from '../../state/banners/banners.action';
+import {
+  selectAllBanners,
+  selectBannersSortOrder,
+} from '../../state/banners/banners.selectors';
+import { AppState } from '../../state/app.state';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-banner',
@@ -25,19 +38,26 @@ export class BannerComponent {
   isEditMode: boolean = false;
   selectedBanner: any = null;
   deleteId: string | null = null;
+  // sortOrder$ = this.store.select(selectBannersSortOrder);
+  sortOrder$: Observable<'asc' | 'desc'>;
+  allBanners$: Observable<Banner[]>;
 
   constructor(
     private bannerService: BannerService,
     private fb: FormBuilder,
     private ngZone: NgZone,
-    private exportService: ExportService
+    private exportService: ExportService,
+    private store: Store<AppState>
   ) {
     this.initForm();
+    this.allBanners$ = this.store.select(selectAllBanners);
+    this.sortOrder$ = this.store.select(selectBannersSortOrder);
   }
 
   ngOnInit() {
     this.loadBanners();
     this.initializeFlowbite();
+    this.store.dispatch(loadBanners());
   }
 
   initializeFlowbite() {
@@ -61,11 +81,10 @@ export class BannerComponent {
   }
 
   sortPrice($event: any) {
-    // Pastikan sorting dilakukan di service
-    this.banners = this.bannerService.sortBanners(
-      [...this.banners], // Gunakan spread operator untuk clone array
-      $event.target.value
-    );
+    const sortOrder = $event.target.value as 'asc' | 'desc';
+
+    // Dispatch aksi sorting
+    this.store.dispatch(sortBanners({ sortOrder }));
 
     // Reinisialisasi Flowbite setelah perubahan
     this.ngZone.runOutsideAngular(() => {
@@ -165,19 +184,22 @@ export class BannerComponent {
     }
   }
 
-
   createBanner(bannerData: any) {
-    this.bannerService.createBanner(bannerData).subscribe({
-      next: () => {
-        this.loadBanners();
-        this.closeModal('crud-modal');
-        this.resetForm();
-        alert('Banner created successfully');
-      },
-      error: (err) => {
-        console.error('Error creating banner', err);
-      },
-    });
+    // this.bannerService.createBanner(bannerData).subscribe({
+    //   next: () => {
+    //     this.loadBanners();
+    //     this.closeModal('crud-modal');
+    //     this.resetForm();
+    //     alert('Banner created successfully');
+    //   },
+    //   error: (err) => {
+    //     console.error('Error creating banner', err);
+    //   },
+    // });
+    this.store.dispatch(addBanner({ banner: bannerData }));
+    this.closeModal('crud-modal');
+    this.resetForm();
+    alert('Banner created successfully');
   }
 
   // if impement update
@@ -220,79 +242,53 @@ export class BannerComponent {
 
   confirmDelete() {
     if (this.deleteId) {
-      this.bannerService.deleteBanner(this.deleteId).subscribe({
-        next: () => {
-          // Reload banners setelah delete
-          this.loadBanners();
-          
-          // Tutup modal konfirmasi
-          this.closeModal('delete-confirm-modal');
-          
-          // Reset delete ID
-          this.deleteId = null;
-  
-          // Optional: Tambahkan notifikasi
-          alert('Banner berhasil dihapus');
-        },
-        error: (error) => {
-          console.error('Error deleting banner', error);
-          alert('Gagal menghapus banner');
-        }
-      });
+      this.store.dispatch(deleteBanner({ bannerId: this.deleteId }));
+      this.closeModal('delete-confirm-modal');
+      // Optional: Tambahkan notifikasi
+      alert('Banner berhasil dihapus');
     }
   }
 
-  exportPDF(){
+  exportPDF() {
     const columns = [
       'id_banner_ads_package',
       'package_name',
       'package_description',
       'package_price',
       'package_duration',
-      'package_is_active'
+      'package_is_active',
     ];
 
-    const exportData = this.banners.map(banner => ({
+    const exportData = this.banners.map((banner) => ({
       id_banner_ads_package: banner.id_banner_ads_package,
       package_name: banner.package_name,
       package_description: banner.package_description,
       package_price: banner.package_price,
       package_duration: banner.package_duration,
-      package_is_active: banner.package_is_active
+      package_is_active: banner.package_is_active,
     }));
 
-    this.exportService.exportToPDF(
-      exportData,
-      columns,
-      'Laporan Banner Ads',
-    )
-
+    this.exportService.exportToPDF(exportData, columns, 'Laporan Banner Ads');
   }
 
   exportExcel() {
     const columns = [
-      'id_banner_ads_package', 
-      'nama_banner', 
-      'deskripsi', 
-      'harga', 
-      'status'
+      'id_banner_ads_package',
+      'nama_banner',
+      'deskripsi',
+      'harga',
+      'status',
     ];
 
     // Transformasi data sesuai kebutuhan
-    const exportData = this.banners.map(banner => ({
+    const exportData = this.banners.map((banner) => ({
       id_banner_ads_package: banner.id_banner_ads_package,
       nama_banner: banner.package_name,
       deskripsi: banner.package_description,
       harga: banner.package_price,
-      status: banner.package_is_active ? 'Aktif' : 'Tidak Aktif'
+      status: banner.package_is_active ? 'Aktif' : 'Tidak Aktif',
     }));
 
-    this.exportService.exportToExcel(
-      exportData, 
-      columns, 
-      'Laporan_Banner_Ads'
-    );
+    this.exportService.exportToExcel(exportData, columns, 'Laporan_Banner_Ads');
   }
-
 }
-
